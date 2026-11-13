@@ -1,5 +1,26 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react";
 
+export const topremitColors = {
+  // Primary Brand Colors
+  primary: "#269FEF",
+  primaryDark: "#1688DB",
+  lightBlue: "#EAF6FF",
+  paleBlue: "#D8EDFF",
+
+  // Neutral Colors
+  white: "#FFFFFF",
+  background: "#F5F8FC",
+  border: "#E7EDF5",
+  secondaryText: "#64748B",
+  heading: "#172B4D",
+  darkText: "#0F172A",
+
+  // Status Colors
+  success: "#16A34A",
+  warning: "#F59E0B",
+  error: "#DC2626",
+};
+
 const customConfig = defineConfig({
   theme: {
     tokens: {
@@ -21,7 +42,7 @@ const customConfig = defineConfig({
           blueDark: { value: "#1688DB" },
           lightBlue: { value: "#EAF6FF" },
           paleBlue: { value: "#D8EDFF" },
-          pageBg: { value: "#F5F8FC" },
+          bg: { value: "#F5F8FC" },
           border: { value: "#E7EDF5" },
           card: { value: "#FFFFFF" },
           heading: { value: "#172B4D" },
@@ -36,12 +57,28 @@ const customConfig = defineConfig({
         heading: { value: "var(--font-inter), sans-serif" },
         body: { value: "var(--font-inter), sans-serif" },
       },
+      radii: {
+        card: { value: "16px" },
+        button: { value: "10px" },
+        input: { value: "12px" },
+        modal: { value: "20px" },
+        badge: { value: "9999px" },
+      },
+      shadows: {
+        card: { value: "0px 2px 8px rgba(15, 23, 42, 0.04)" },
+        hoverCard: { value: "0px 6px 16px rgba(38, 159, 239, 0.12)" },
+        dropdown: { value: "0px 8px 24px rgba(15, 23, 42, 0.1)" },
+        modal: { value: "0px 16px 40px rgba(15, 23, 42, 0.15)" },
+      },
     },
     semanticTokens: {
       colors: {
-        "bg.canvas": { value: "{colors.topremit.pageBg}" },
+        "bg.canvas": { value: "{colors.topremit.bg}" },
         "bg.surface": { value: "{colors.topremit.card}" },
         "border.subtle": { value: "{colors.topremit.border}" },
+        "fg.default": { value: "{colors.topremit.textDark}" },
+        "fg.muted": { value: "{colors.topremit.secondary}" },
+        "fg.heading": { value: "{colors.topremit.heading}" },
       },
     },
   },
