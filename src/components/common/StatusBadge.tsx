@@ -1,6 +1,6 @@
 import { Box, HStack, Text } from "@chakra-ui/react";
 
-export type TransactionStatusType = "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED";
+export type TransactionStatusType = "PENDING" | "PROCESSING" | "COMPLETED" | "CANCELLED" | "FAILED";
 
 export interface StatusBadgeProps {
   status: TransactionStatusType;
@@ -30,6 +30,12 @@ const statusConfig: Record<
   },
   CANCELLED: {
     label: "Dibatalkan",
+    bg: "#FEE2E2",
+    color: "#B91C1C",
+    dot: "#DC2626",
+  },
+  FAILED: {
+    label: "Gagal",
     bg: "#FEE2E2",
     color: "#B91C1C",
     dot: "#DC2626",

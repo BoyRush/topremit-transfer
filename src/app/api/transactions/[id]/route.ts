@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getTransactionById, updateTransactionRating } from "@/services/transaction.service";
+import { getTransactionById, submitRating } from "@/services/transaction.service";
 
 export const dynamic = "force-dynamic";
 
@@ -9,7 +9,7 @@ export async function GET(_request: Request, props: { params: Promise<{ id: stri
 
   if (!transaction) {
     return NextResponse.json(
-      { success: false, message: `Transaksi dengan ID ${id} tidak ditemukan` },
+      { success: false, message: `Transaksi dengan referensi ${id} tidak ditemukan` },
       { status: 404 }
     );
   }
@@ -29,13 +29,22 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
       );
     }
 
-    const updated = updateTransactionRating(id, body.rating, body.comment);
-    if (!updated) {
+    const existing = getTransactionById(id);
+    if (!existing) {
       return NextResponse.json(
         { success: false, message: "Transaksi tidak ditemukan" },
         { status: 404 }
       );
     }
+
+    if (existing.rating !== undefined) {
+      return NextResponse.json(
+        { success: false, message: "Rating sudah pernah diberikan untuk transaksi ini" },
+        { status: 400 }
+      );
+    }
+
+    const updated = submitRating(id, body.rating, body.comment);
 
     return NextResponse.json({
       success: true,

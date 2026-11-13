@@ -109,3 +109,20 @@ export function calculateTotalPayment(
 ): number {
   return Math.max(0, Math.round(sendAmountIdr + feeIdr - discountIdr));
 }
+
+/**
+ * Masks bank account number for privacy and security.
+ * e.g. "0192837482" -> "0192 •••• 7482"
+ * e.g. "12345" -> "12••5"
+ */
+export function maskAccountNumber(accountNumber: string): string {
+  if (!accountNumber) return "-";
+  const trimmed = accountNumber.trim();
+  if (trimmed.length <= 4) return trimmed;
+  if (trimmed.length <= 7) {
+    return trimmed.slice(0, 2) + "•••" + trimmed.slice(-2);
+  }
+  const prefix = trimmed.slice(0, 4);
+  const suffix = trimmed.slice(-4);
+  return `${prefix} •••• ${suffix}`;
+}

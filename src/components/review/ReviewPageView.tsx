@@ -18,6 +18,7 @@ import { ConfirmTransferDialog } from "./ConfirmTransferDialog";
 import { useTransferStore } from "@/store/transfer-store";
 import { usePaymentBanks } from "@/hooks/usePaymentBanks";
 import type { PaymentBank } from "@/models/payment-bank";
+import type { CreateTransactionPayload } from "@/models/transaction";
 
 export function ReviewPageView() {
   const router = useRouter();
@@ -76,35 +77,30 @@ export function ReviewPageView() {
     setSubmitError(null);
 
     try {
-      const payload = {
+      const payload: CreateTransactionPayload = {
         destinationCountry: {
           code: store.destinationCountryCode,
           name: store.destinationCountryName,
-          currency: {
-            code: store.destinationCurrency,
-            name: store.destinationCurrency,
-            symbol: store.destinationCurrency,
-          },
           flagEmoji: store.destinationFlag,
         },
-        recipient: store.recipient,
-        calculation: {
-          sendAmountIdr: store.sendAmountIdr,
-          receiveAmountFx: store.receiveAmountFx,
-          exchangeRate: store.exchangeRate,
-          inverseRate: store.exchangeRate > 0 ? 1 / store.exchangeRate : 0,
-          serviceType: store.serviceType,
-          speed: store.speed,
-          transferFeeIdr: store.transferFeeIdr,
-          discountIdr: store.discountIdr,
-          totalPaymentIdr: Math.max(
-            0,
-            store.sendAmountIdr + store.transferFeeIdr - store.discountIdr
-          ),
-          estimatedArrival:
-            store.speed === "INSTANT" ? "Tiba dalam 15-60 menit" : "3 hari kerja bank",
-        },
+        destinationCurrency: store.destinationCurrency,
+        sendAmount: store.sendAmountIdr,
+        receiveAmount: store.receiveAmountFx,
+        exchangeRate: store.exchangeRate,
+        service: store.serviceType,
+        speed: store.speed,
+        transferFee: store.transferFeeIdr,
+        totalPayment: Math.max(0, store.sendAmountIdr + store.transferFeeIdr - store.discountIdr),
         paymentBank: selectedPaymentBank,
+        recipient: {
+          bankCode: store.recipient.bankCode,
+          bankName: store.recipient.bankName,
+          accountNumber: store.recipient.accountNumber,
+          fullName: store.recipient.fullName,
+          transferPurpose: store.recipient.transferPurpose,
+          email: store.recipient.email,
+          note: store.recipient.note,
+        },
       };
 
       const res = await fetch("/api/transactions", {
