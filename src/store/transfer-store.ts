@@ -18,7 +18,9 @@ export interface TransferDraftState {
   // Calculator state
   sourceCurrency: "IDR";
   destinationCountryCode: string;
+  destinationCountryName: string;
   destinationCurrency: string;
+  destinationFlag: string;
   sendAmountIdr: number;
   receiveAmountFx: number;
   exchangeRate: number;
@@ -38,7 +40,13 @@ export interface TransferDraftState {
 
   // Actions
   setAmounts: (sendAmountIdr: number, receiveAmountFx: number) => void;
-  setDestination: (countryCode: string, currency: string, rate: number) => void;
+  setDestination: (
+    countryCode: string,
+    countryName: string,
+    currency: string,
+    flag: string,
+    rate: number
+  ) => void;
   setServiceAndSpeed: (
     serviceType: TransferServiceType,
     speed: TransferSpeedType,
@@ -55,10 +63,12 @@ export interface TransferDraftState {
 const initialDraft = {
   sourceCurrency: "IDR" as const,
   destinationCountryCode: "US",
+  destinationCountryName: "Amerika Serikat",
   destinationCurrency: "USD",
+  destinationFlag: "🇺🇸",
   sendAmountIdr: 1000000,
   receiveAmountFx: 0,
-  exchangeRate: 0.000062,
+  exchangeRate: 0.00006116,
   serviceType: "BANK_TRANSFER" as TransferServiceType,
   speed: "REGULAR" as TransferSpeedType,
   transferFeeIdr: 75000,
@@ -75,8 +85,20 @@ export const useTransferStore = create<TransferDraftState>()(
     (set) => ({
       ...initialDraft,
       setAmounts: (sendAmountIdr, receiveAmountFx) => set({ sendAmountIdr, receiveAmountFx }),
-      setDestination: (destinationCountryCode, destinationCurrency, exchangeRate) =>
-        set({ destinationCountryCode, destinationCurrency, exchangeRate }),
+      setDestination: (
+        destinationCountryCode,
+        destinationCountryName,
+        destinationCurrency,
+        destinationFlag,
+        exchangeRate
+      ) =>
+        set({
+          destinationCountryCode,
+          destinationCountryName,
+          destinationCurrency,
+          destinationFlag,
+          exchangeRate,
+        }),
       setServiceAndSpeed: (serviceType, speed, transferFeeIdr) =>
         set({ serviceType, speed, transferFeeIdr }),
       setRecipient: (recipient) =>
@@ -107,7 +129,9 @@ export const useTransferStore = create<TransferDraftState>()(
       ),
       partialize: (state) => ({
         destinationCountryCode: state.destinationCountryCode,
+        destinationCountryName: state.destinationCountryName,
         destinationCurrency: state.destinationCurrency,
+        destinationFlag: state.destinationFlag,
         sendAmountIdr: state.sendAmountIdr,
         receiveAmountFx: state.receiveAmountFx,
         serviceType: state.serviceType,
