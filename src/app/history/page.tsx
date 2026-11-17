@@ -10,4 +10,3 @@ export const metadata = {
 export default function HistoryPage() {
   return <TransactionHistoryView />;
 }
-
