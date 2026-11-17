@@ -4,9 +4,14 @@ import { Box, Flex, HStack, Text } from "@chakra-ui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowLeftRight, Clock, HelpCircle, Send, User } from "lucide-react";
+import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useT } from "@/store/lang-store";
+import { useTransferStore } from "@/store/transfer-store";
 
 export function AppHeader() {
   const pathname = usePathname();
+  const T = useT();
+  const resetDraft = useTransferStore((s) => s.resetDraft);
 
   const isTransferActive = pathname === "/" || pathname.startsWith("/transfer");
   const isHistoryActive = pathname.startsWith("/history");
@@ -50,7 +55,7 @@ export function AppHeader() {
                   top<span style={{ color: "#269FEF" }}>remit</span>
                 </Text>
                 <Text fontSize="10px" color="#64748B" fontWeight="medium" letterSpacing="0.2px">
-                  MONEY TRANSFER
+                  {T("app.tagline")}
                 </Text>
               </Box>
             </HStack>
@@ -58,7 +63,7 @@ export function AppHeader() {
 
           {/* Desktop Navigation */}
           <HStack gap={1} display={{ base: "none", md: "flex" }}>
-            <Link href="/transfer" style={{ textDecoration: "none" }}>
+            <Link href="/" style={{ textDecoration: "none" }}>
               <HStack
                 px={4}
                 py={2}
@@ -72,7 +77,7 @@ export function AppHeader() {
                 _hover={{ bg: "#EAF6FF", color: "#1688DB" }}
               >
                 <Send size={16} />
-                <Text>Kirim Uang</Text>
+                <Text>{T("nav.send_money")}</Text>
               </HStack>
             </Link>
 
@@ -90,7 +95,7 @@ export function AppHeader() {
                 _hover={{ bg: "#EAF6FF", color: "#1688DB" }}
               >
                 <Clock size={16} />
-                <Text>Riwayat Transaksi</Text>
+                <Text>{T("nav.history")}</Text>
               </HStack>
             </Link>
 
@@ -108,29 +113,41 @@ export function AppHeader() {
                 _hover={{ bg: "#F5F8FC", color: "#172B4D" }}
               >
                 <HelpCircle size={16} />
-                <Text>Bantuan</Text>
+                <Text>{T("nav.help")}</Text>
               </HStack>
             </Link>
           </HStack>
 
-          {/* User Profile & Country Indicator */}
-          <HStack gap={3}>
-            {/* Locale indicator */}
-            <HStack
-              bg="#F5F8FC"
-              px={2.5}
-              py={1.5}
-              borderRadius="8px"
-              border="1px solid #E7EDF5"
-              gap={1.5}
-              fontSize="12px"
-              fontWeight="600"
-              color="#172B4D"
-              cursor="default"
-            >
-              <span>🇮🇩</span>
-              <Text>ID</Text>
-            </HStack>
+          {/* Right: Language Switcher + New Transfer + Profile */}
+          <HStack gap={2}>
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+
+            {/* New Transfer Button — resets draft without touching history */}
+            {(pathname.startsWith("/recipient") ||
+              pathname.startsWith("/review") ||
+              pathname.startsWith("/success")) && (
+              <Link href="/" style={{ textDecoration: "none" }}>
+                <button
+                  type="button"
+                  onClick={resetDraft}
+                  title="Start a new transfer"
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: "8px",
+                    fontSize: "12px",
+                    fontWeight: 700,
+                    border: "1.5px solid #E7EDF5",
+                    background: "#F8FAFC",
+                    color: "#64748B",
+                    cursor: "pointer",
+                    display: "none", // shown via media query below
+                  }}
+                >
+                  {T("nav.send_money")}
+                </button>
+              </Link>
+            )}
 
             {/* Profile Avatar Pill */}
             <HStack
@@ -162,7 +179,7 @@ export function AppHeader() {
                 color="#0F172A"
                 display={{ base: "none", sm: "block" }}
               >
-                Pengguna
+                {T("nav.user_placeholder")}
               </Text>
             </HStack>
           </HStack>
@@ -178,7 +195,7 @@ export function AppHeader() {
         justifyContent="space-around"
         bg="#FFFFFF"
       >
-        <Link href="/transfer" style={{ textDecoration: "none", flex: 1 }}>
+        <Link href="/" style={{ textDecoration: "none", flex: 1 }}>
           <Flex
             direction="column"
             align="center"
@@ -187,7 +204,7 @@ export function AppHeader() {
           >
             <Send size={18} />
             <Text fontSize="11px" fontWeight={isTransferActive ? "600" : "500"} mt={1}>
-              Kirim
+              {T("nav.send_money")}
             </Text>
           </Flex>
         </Link>
@@ -201,7 +218,7 @@ export function AppHeader() {
           >
             <Clock size={18} />
             <Text fontSize="11px" fontWeight={isHistoryActive ? "600" : "500"} mt={1}>
-              Riwayat
+              {T("nav.history")}
             </Text>
           </Flex>
         </Link>

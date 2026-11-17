@@ -57,6 +57,10 @@ export interface TransferDraftState {
   applyPromo: (code: string, discount: number) => void;
   removePromo: () => void;
   setStep: (step: number) => void;
+  /**
+   * Reset only the transfer draft fields.
+   * Does NOT erase transaction history (which lives in the global server store).
+   */
   resetDraft: () => void;
 }
 
@@ -75,6 +79,7 @@ const initialDraft = {
   discountIdr: 0,
   appliedPromoCode: null,
   paymentBank: null,
+  // NOTE: recipient is intentionally NOT persisted – see partialize below.
   recipient: null,
   currentStep: 1,
   maxCompletedStep: 1,
@@ -117,7 +122,8 @@ export const useTransferStore = create<TransferDraftState>()(
       resetDraft: () => set(initialDraft),
     }),
     {
-      name: "topremit-transfer-draft",
+      name: "topremit-transfer-draft-v2",
+      version: 2,
       storage: createJSONStorage(() =>
         typeof window !== "undefined"
           ? localStorage
@@ -127,21 +133,60 @@ export const useTransferStore = create<TransferDraftState>()(
               removeItem: () => {},
             }
       ),
+      /**
+       * Migration from v1 → v2.
+       * v1 persisted recipient data; v2 intentionally drops it for privacy.
+       * Any unknown stored version is treated as a fresh draft.
+       */
+      migrate: (persistedState, version) => {
+        if (version < 2) {
+          // Drop recipient from persisted state to respect privacy policy.
+          const s = persistedState as Partial<TransferDraftState>;
+          return {
+            ...initialDraft,
+            destinationCountryCode: s.destinationCountryCode ?? initialDraft.destinationCountryCode,
+            destinationCountryName: s.destinationCountryName ?? initialDraft.destinationCountryName,
+            destinationCurrency: s.destinationCurrency ?? initialDraft.destinationCurrency,
+            destinationFlag: s.destinationFlag ?? initialDraft.destinationFlag,
+            sendAmountIdr: s.sendAmountIdr ?? initialDraft.sendAmountIdr,
+            receiveAmountFx: s.receiveAmountFx ?? initialDraft.receiveAmountFx,
+            serviceType: s.serviceType ?? initialDraft.serviceType,
+            speed: s.speed ?? initialDraft.speed,
+            transferFeeIdr: s.transferFeeIdr ?? initialDraft.transferFeeIdr,
+            appliedPromoCode: null,
+            discountIdr: 0,
+            paymentBank: null,
+            recipient: null,
+            currentStep: 1,
+            maxCompletedStep: 1,
+          };
+        }
+        return persistedState as TransferDraftState;
+      },
       partialize: (state) => ({
+        // Financial calculator state — safe to persist (non-sensitive)
         destinationCountryCode: state.destinationCountryCode,
         destinationCountryName: state.destinationCountryName,
         destinationCurrency: state.destinationCurrency,
         destinationFlag: state.destinationFlag,
         sendAmountIdr: state.sendAmountIdr,
         receiveAmountFx: state.receiveAmountFx,
+        exchangeRate: state.exchangeRate,
         serviceType: state.serviceType,
         speed: state.speed,
         transferFeeIdr: state.transferFeeIdr,
-        recipient: state.recipient,
+        // Promo code is non-sensitive (public codes)
         appliedPromoCode: state.appliedPromoCode,
+        discountIdr: state.discountIdr,
+        // paymentBank is a bank ID string (non-sensitive)
         paymentBank: state.paymentBank,
+        // Step progression — needed for route guard on page refresh
         currentStep: state.currentStep,
         maxCompletedStep: state.maxCompletedStep,
+        // NOTE: `recipient` is intentionally EXCLUDED from persistence.
+        // Personal banking details (account number, full name) should not be
+        // written to localStorage in a production system. Users must re-enter
+        // recipient details after a page refresh. This is the correct privacy posture.
       }),
     }
   )

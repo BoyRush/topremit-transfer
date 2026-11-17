@@ -1,7 +1,4 @@
-import type {
-  CreateTransactionPayload,
-  Transaction,
-} from "@/models/transaction";
+import type { CreateTransactionPayload, Transaction } from "@/models/transaction";
 
 // Pre-seeded mock transactions for demonstration & history testing
 const INITIAL_MOCK_TRANSACTIONS: Transaction[] = [
@@ -182,7 +179,9 @@ export function createTransaction(payload: CreateTransactionPayload): Transactio
 
 export function getTransactionById(id: string): Transaction | undefined {
   return globalStore.__TOPREMIT_TRANSACTIONS__?.find(
-    (t) => t.id.toLowerCase() === id.toLowerCase() || t.transactionReference.toLowerCase() === id.toLowerCase()
+    (t) =>
+      t.id.toLowerCase() === id.toLowerCase() ||
+      t.transactionReference.toLowerCase() === id.toLowerCase()
   );
 }
 

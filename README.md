@@ -43,7 +43,7 @@ The application adheres to clean separation of concerns:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/topremit-transfer.git
+git clone https://github.com/boyrush/topremit-transfer.git
 cd topremit-transfer
 
 # Install dependencies

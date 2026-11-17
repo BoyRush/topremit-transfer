@@ -17,11 +17,18 @@ import { BankSelectModal } from "./BankSelectModal";
 import { useTransferStore } from "@/store/transfer-store";
 import { useDestinationBanks } from "@/hooks/useDestinationBanks";
 import { useTransferForm } from "@/hooks/useTransferForm";
+import { useRouteGuard } from "@/hooks/useRouteGuard";
+import { useT } from "@/store/lang-store";
+import { LoadingState } from "@/components/common";
 import { TRANSFER_PURPOSE_OPTIONS } from "@/models/recipient";
 
 export function RecipientFormView() {
   const router = useRouter();
   const store = useTransferStore();
+  const T = useT();
+
+  // Route guard: requires step 1 (calculator completed: amount > 0 & country set)
+  const { isAllowed, isChecking } = useRouteGuard({ requiredStep: 1, redirectTo: "/" });
 
   const [isBankModalOpen, setIsBankModalOpen] = React.useState(false);
 
@@ -45,15 +52,26 @@ export function RecipientFormView() {
     },
   });
 
+  // Show loading spinner while hydration check runs
+  if (isChecking || !isAllowed) {
+    return (
+      <AppShell>
+        <MainContainer maxW="1080px">
+          <LoadingState message="Memeriksa sesi transfer..." />
+        </MainContainer>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <MainContainer maxW="1080px">
         {/* Page Heading: "Who are you sending to?" */}
         <PageHeading
-          title="Who are you sending to?"
-          subtitle="Masukkan data rekening penerima di negara tujuan dengan benar dan teliti."
+          title={T("recipient.title")}
+          subtitle={T("recipient.subtitle")}
           backHref="/"
-          backLabel="Kembali ke Kalkulator"
+          backLabel={T("recipient.back")}
         />
 
         {/* Stepper: Step 2 active */}

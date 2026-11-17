@@ -38,4 +38,3 @@ export function useTransactions() {
     refetch: query.refetch,
   };
 }
-

@@ -15,14 +15,22 @@ import {
 import { TransferReviewCard } from "./TransferReviewCard";
 import { PaymentBankPicker } from "./PaymentBankPicker";
 import { ConfirmTransferDialog } from "./ConfirmTransferDialog";
+import { PromoCodeInput } from "./PromoCodeInput";
 import { useTransferStore } from "@/store/transfer-store";
 import { usePaymentBanks } from "@/hooks/usePaymentBanks";
+import { useRouteGuard } from "@/hooks/useRouteGuard";
+import { useT } from "@/store/lang-store";
+import { LoadingState } from "@/components/common";
 import type { PaymentBank } from "@/models/payment-bank";
 import type { CreateTransactionPayload } from "@/models/transaction";
 
 export function ReviewPageView() {
   const router = useRouter();
   const store = useTransferStore();
+  const T = useT();
+
+  // Route guard: requires step 2 (recipient submitted) to view review
+  const { isAllowed, isChecking } = useRouteGuard({ requiredStep: 2, redirectTo: "/recipient" });
 
   const { paymentBanks } = usePaymentBanks();
 
@@ -137,15 +145,26 @@ export function ReviewPageView() {
 
   const totalPayment = Math.max(0, store.sendAmountIdr + store.transferFeeIdr - store.discountIdr);
 
+  // Show loading while hydrating/checking route guard
+  if (isChecking || !isAllowed) {
+    return (
+      <AppShell>
+        <MainContainer maxW="1080px">
+          <LoadingState message="Memeriksa sesi transfer..." />
+        </MainContainer>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <MainContainer maxW="1080px">
         {/* Page Heading: "Check before you send" */}
         <PageHeading
-          title="Check before you send"
-          subtitle="Periksa kembali ringkasan transaksi sebelum mengonfirmasi pengiriman dana."
+          title={T("review.title")}
+          subtitle={T("review.subtitle")}
           backHref="/recipient"
-          backLabel="Kembali ke Data Penerima"
+          backLabel={T("review.back")}
         />
 
         {/* Stepper: Step 3 active */}
@@ -165,6 +184,26 @@ export function ReviewPageView() {
                 onSelectBank={handleSelectPaymentBank}
                 error={bankError || undefined}
               />
+
+              {/* Promo Code Input */}
+              <Box
+                bg="#FFFFFF"
+                p={{ base: 5, sm: 6 }}
+                borderRadius="16px"
+                border="1px solid #E7EDF5"
+                boxShadow="0px 2px 6px rgba(15, 23, 42, 0.03)"
+              >
+                <PromoCodeInput
+                  sendAmountIdr={store.sendAmountIdr}
+                  transferFeeIdr={store.transferFeeIdr}
+                  appliedCode={store.appliedPromoCode}
+                  discountIdr={store.discountIdr}
+                  onApply={(code, discountIdr) => {
+                    store.applyPromo(code, discountIdr);
+                  }}
+                  onRemove={() => store.removePromo()}
+                />
+              </Box>
 
               {/* Error Notice if Submission Failed */}
               {submitError && (
@@ -200,12 +239,12 @@ export function ReviewPageView() {
                   disabled={!store.recipient || isSubmitting}
                   rightIcon={<ArrowRight size={18} />}
                 >
-                  Lanjutkan & Konfirmasi
+                  {T("review.confirm_button")}
                 </PrimaryButton>
 
                 <Link href="/recipient" style={{ textDecoration: "none" }}>
                   <SecondaryButton isFullWidth leftIcon={<ArrowLeft size={16} />}>
-                    Kembali ke Data Penerima
+                    {T("review.back")}
                   </SecondaryButton>
                 </Link>
               </VStack>

@@ -21,4 +21,3 @@ export default async function HistoryDetailPage({ params }: HistoryDetailPagePro
 
   return <TransactionDetailView transactionId={id} initialTransaction={initialTransaction} />;
 }
-
